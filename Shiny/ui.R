@@ -19,7 +19,7 @@ inactivity <- "function idleTimer() {
 
   function resetTimer() {
     clearTimeout(t);
-    t = setTimeout(logout, 60000);  // time is in milliseconds (1000 is 1 second)
+    t = setTimeout(logout, 600000);  // time is in milliseconds (1000 is 1 second)
   }
 }
 idleTimer();"
@@ -42,8 +42,13 @@ fluidPage(
                 numericInput("receipts", "Establishment Receipts", 
 			     min=0, max=7200000, value=100),
                 numericInput("employment", "Establishment employment", 
-			     min=0, max=19000, value=100)),
+			     min=0, max=19000, value=100),
+		#Temporary:
+                numericInput("ngrid", "Number of grid points", 
+			     min=0, max=500, value=150)),
     mainPanel(
-      plotOutput("density"))
+      plotOutput("surface"),
+      plotOutput("density")
+    )
   )
 )
