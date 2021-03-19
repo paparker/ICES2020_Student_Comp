@@ -21,7 +21,7 @@ sbo <- mutate(sbo, SEX=as.factor(SEX)) %>%
 	mutate(FRANCHISE=as.factor(FRANCHISE)) 
 
 #PRMINC response with SEX, ETH, RACE, VET, SECTOR, FRANCHISE as covariates
-Xmat <- model.matrix(formula(~ (RECEIPTS_NOISY + EMPLOYMENT_NOISY + SEX +
+Xmat <- model.matrix(formula(~ (log(RECEIPTS_NOISY+1) + log(EMPLOYMENT_NOISY+1) + SEX +
 				ETH+RACE+VET+
 				SECTOR+FRANCHISE)-1), 
 		     data=sbo)
@@ -44,4 +44,7 @@ beta <- rmvnorm(1000, mean=mod$BU$mean, sigma=as.matrix(mod$BU$Cov)) ## posterio
 Xpred <- plogis(cbind(1,Xmat)%*%A)
 preds <- plogis(Xpred%*%t(beta)) ### Need to save A and beta for prediction in shiny app
 
-write_rds(list(A=A, beta=beta, factor_levels=factor_levels), file = "Data/elm.Rds")
+write_rds(list(A=A, beta=beta, factor_levels=factor_levels), path = "Data/elm.rds")
+
+
+  

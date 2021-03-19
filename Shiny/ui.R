@@ -42,7 +42,7 @@ fluidPage(
                 numericInput("receipts", "Establishment Receipts", 
 			     min=0, max=7200000, value=100),
                 numericInput("employment", "Establishment employment", 
-			     min=0, max=19000, value=100),
+			     min=0, max=19000, value=10),
 		#Temporary:
                 numericInput("ngrid", "Number of grid points", 
 			     min=0, max=500, value=150)),
