@@ -47,8 +47,8 @@ fluidPage(
                 numericInput("ngrid", "Number of grid points", 
 			     min=0, max=500, value=150)),
     mainPanel(
-      plotOutput("surface"),
-      plotOutput("density")
+      plotlyOutput("surface"),
+      plotlyOutput("density")
     )
   )
 )
