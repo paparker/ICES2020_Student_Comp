@@ -44,8 +44,8 @@ fluidPage(
                 numericInput("employment", "Establishment employment", 
 			     min=0, max=19000, value=10)),
     mainPanel(
-      plotOutput("surface"),
-      plotOutput("density")
+      plotlyOutput("surface"),
+      plotlyOutput("density")
     )
   )
 )

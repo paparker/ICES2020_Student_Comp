@@ -3,6 +3,7 @@ library(ggplot2)
 library(readr)
 library(dplyr)
 library(ggthemes)
+library(plotly)
 
 mod <- read_rds("../Data/elm.rds")
 levs <- mod$factor_levels
@@ -44,13 +45,14 @@ function(input, output) {
     df1 <- data.frame(t(vals$preds))
     colnames(df1)<-"x"
 
-    output$density <- renderPlot(
-		         	ggplot(df1, aes(x=x)) +
-				geom_density(fill='green', alpha=0.3)+
+    output$density <- renderPlotly(
+		         	(ggplot(df1, aes(x=x)) +
+				  geom_density(fill='green', alpha=0.3)+
 				geom_vline(color="red", 
 					   aes(xintercept=mean(vals$preds))) +
-				labs(title="Posterior Probability of Primary Income Source")+
-				  theme_classic()
+				labs(title="Posterior Probability of Primary Income Source", x="Probability")+
+				  theme_classic()) %>%
+				  ggplotly(tooltip = c("x","fill"))
     )
 
    ngrid <- 110
@@ -69,8 +71,8 @@ function(input, output) {
    #rescale back to original units
    df2 <- df2 %>% mutate(x=x)
    df2 <- df2 %>% mutate(y=y)
-   output$surface <- renderPlot(
-        			ggplot(df2) +
+   output$surface <- renderPlotly(
+        			(ggplot(df2) +
         				geom_raster(aes(x=x,y=y,fill=z)) +
         			  scale_fill_viridis_c()+
 					labs(title="Predictive surface",
@@ -80,7 +82,8 @@ function(input, output) {
 					  geom_vline(color='red', linetype='dashed', aes(xintercept=input$receipts))+
 					  theme_classic()+
 					  xlim(c(0,receipt_max))+
-					  ylim(c(0,employ_max))
+					  ylim(c(0,employ_max))) %>%
+					  ggplotly(tooltip = c("x","y","fill"))
     )
   })
 }
