@@ -67,5 +67,35 @@ sboLong <- pct %>%
 sboLong <- sboLong %>% 
   filter(!is.na(PRMINC))
 
+sboLong <- mutate(sboLong, SEX=recode(SEX, M="Male", F="Female")) %>% 
+        	mutate(ETH=recode(ETH, N="Non-Hispanic", H="Hispanic")) %>%
+        	mutate(RACE=recode(RACE, W="White", B="Black", 
+        			   I="Amer. Indian and Alaska Native",
+        			   A="Asian", P="Pacific Islander",
+        			   S="Some other race")) %>%
+        	mutate(VET=recode(VET, "1"="Yes", "2"="No")) %>%
+        	mutate(SECTOR=recode(SECTOR,
+        		     "11"="Agriculture, Forestry, Fishing and Hunting",
+        		     "21"="Mining, Quarrying, and Oil and Gas Extraction",
+        		     "22"="Utilities",
+        		     "23"="Construction",
+        		     "31"= "Manufacturing",
+        		     "42"= "Wholesale Trade",
+        		     "44"= "Retail Trade",
+        		     "48"= "Transportation and Warehousing",
+        		     "51"= "Information",
+        		     "52"= "Finance and Insurance",
+        		     "53"= "Real Estate and Rental and Leasing",
+        		     "54"= "Professional, Scientific, and Technical Services",
+        		     "55"= "Management of Companies and Enterprises",
+        		     "56"= "Administrative and Support and Waste Management and Remediation Services",
+        		     "61"= "Educational Services",
+        		     "62"= "Health Care and Social Assistance",
+        		     "71"= "Arts, Entertainment, and Recreation",
+        		     "72"= "Accommodation and Food Services",
+        		     "81"= "Other Services (except Public Administration)",
+        		     "99"= "Nonclassifiable Establishments")) %>%
+        	mutate(FRANCHISE=recode(FRANCHISE, "1"="Yes", "2"="No"))
+
 ## Save data
 write_rds(sboLong, 'Data/tidy_sbo.rds')
