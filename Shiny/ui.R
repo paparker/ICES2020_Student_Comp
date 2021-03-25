@@ -2,7 +2,7 @@ library(shiny)
 library(ggplot2)
 library(readr)
 
-mod <- read_rds("../Data/elm.Rds")
+mod <- read_rds("../Data/elm.rds")
 levs <- mod$factor_levels
 
 inactivity <- "function idleTimer() {
@@ -42,10 +42,7 @@ fluidPage(
                 numericInput("receipts", "Establishment Receipts", 
 			     min=0, max=7200000, value=100),
                 numericInput("employment", "Establishment employment", 
-			     min=0, max=19000, value=10),
-		#Temporary:
-                numericInput("ngrid", "Number of grid points", 
-			     min=0, max=500, value=150)),
+			     min=0, max=19000, value=10)),
     mainPanel(
       plotOutput("surface"),
       plotOutput("density")

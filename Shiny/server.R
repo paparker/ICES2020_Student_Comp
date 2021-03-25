@@ -4,7 +4,7 @@ library(readr)
 library(dplyr)
 library(ggthemes)
 
-mod <- read_rds("../Data/elm.Rds")
+mod <- read_rds("../Data/elm.rds")
 levs <- mod$factor_levels
 
 
@@ -46,19 +46,14 @@ function(input, output) {
 
     output$density <- renderPlot(
 		         	ggplot(df1, aes(x=x)) +
-				# geom_histogram(aes(y=stat(count)/sum(count)),
-				# 	   fill="#69b3a2", alpha=.75, 
-				# 		   color="black") +
-				  geom_density(fill='green', alpha=0.3)+
+				geom_density(fill='green', alpha=0.3)+
 				geom_vline(color="red", 
 					   aes(xintercept=mean(vals$preds))) +
-				#xlim(c(0,1)) +
-				#ylim(c(0,.5)) +
 				labs(title="Posterior Probability of Primary Income Source")+
 				  theme_classic()
     )
 
-   ngrid <- input$ngrid
+   ngrid <- 110
    receipt_vals <- seq(receipt_min, receipt_max, length.out=ngrid)
    employ_vals <- seq(employ_min, employ_max, length.out=ngrid)
 
