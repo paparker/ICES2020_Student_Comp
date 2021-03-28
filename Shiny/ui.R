@@ -1,6 +1,7 @@
 library(shiny)
 library(ggplot2)
 library(readr)
+library(plotly)
 
 mod <- read_rds("../Data/elm.rds")
 levs <- mod$factor_levels
@@ -45,7 +46,7 @@ fluidPage(
 			     min=0, max=19000, value=10)),
     mainPanel(
       plotlyOutput("surface"),
-      plotlyOutput("density")
+      plotOutput("density")
     )
   )
 )

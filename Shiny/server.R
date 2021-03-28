@@ -22,8 +22,8 @@ function(input, output) {
     req(input$eth, input$franchise, input$race, input$sector,
        	input$sex, input$vet, input$receipts, input$employment)
 
-    employ_norm <- log(input$employment+1)#-employ_center)/employ_scale
-    receipts_norm <- log(input$receipts+1)#-receipt_center)/receipt_scale
+    employ_norm <- log(input$employment+1)
+    receipts_norm <- log(input$receipts+1)
 
     vals$init <- list(RECEIPTS_NOISY = receipts_norm,
 			     EMPLOYMENT_NOISY = employ_norm,
@@ -44,16 +44,38 @@ function(input, output) {
 
     df1 <- data.frame(t(vals$preds))
     colnames(df1)<-"x"
-
-    output$density <- renderPlotly(
-		         	(ggplot(df1, aes(x=x)) +
-				  geom_density(fill='green', alpha=0.3)+
-				geom_vline(color="red", 
+    if(exists("df.prev")){
+	  joint.df <- rbind(cbind(df1,id=1), cbind(df.prev,id=2))
+	  joint.df$id <- as.factor(joint.df$id)
+          output$density <- renderPlot(
+		         	(ggplot(group_by(joint.df,id), mapping=aes(x=x), f) +
+				  geom_density(mapping=aes(fill=id, alpha=id), alpha=0.3) +
+				  geom_vline(color="red", size=.125,
 					   aes(xintercept=mean(vals$preds))) +
-				labs(title="Posterior Probability of Primary Income Source", x="Probability")+
-				  theme_classic()) %>%
-				  ggplotly(tooltip = c("x","fill"))
-    )
+				  labs(title="Posterior Probability of Primary Income Source",
+				     x="Probability")+
+				  scale_fill_manual(name="Prediction", labels=c("Current", "Previous"), 
+						    values=c("green","red"))+
+				  scale_alpha_manual(values=c(0.8, 0.1))+ #make previous pred lighter
+				  theme_classic()) #%>%
+				#  ggplotly(tooltip = c("x","fill"))
+                      )
+         df.prev <<- df1
+    }else{
+	  print(head(df1))
+          print(paste("mean df1=", mean(df1$x)))
+          output$density <- renderPlot(
+		         	(ggplot() +
+				  geom_density(df1, mapping=aes(x=x), fill='green', alpha=0.3) +
+				  geom_vline(color="red", size=.125,
+					   aes(xintercept=mean(vals$preds))) +
+				  labs(title="Posterior Probability of Primary Income Source",
+				     x="Probability")+
+				  theme_classic())# %>%
+				  #ggplotly(tooltip = c("x","fill"))
+                      )
+         df.prev <<- df1
+    }
 
    ngrid <- 110
    receipt_vals <- seq(receipt_min, receipt_max, length.out=ngrid)
@@ -71,19 +93,22 @@ function(input, output) {
    #rescale back to original units
    df2 <- df2 %>% mutate(x=x)
    df2 <- df2 %>% mutate(y=y)
+   plotly.tmp <- (ggplot(df2, mapping=aes(text=paste("Receipts: ", round(x, 3), "\n", 
+						     "Employment: ", round(y,3), "\n",
+						     "Mean response:", round(z,3)))) +
+       		    geom_raster(mapping=aes(x=x,y=y,fill=z)) +
+        	      scale_fill_viridis_c()+
+		    	labs(title="Predictive surface",
+		    	     x="Receipts", y="Employment",
+		    	     fill="Mean Response")+
+		    	  geom_hline(color='red1', linetype='dashed', size=.125, aes(yintercept=input$employment))+
+		    	  geom_vline(color='red1', linetype='dashed', size=.125, aes(xintercept=input$receipts))+
+		    	  theme_classic()+
+		    	  xlim(c(0,receipt_max))+
+		    	  ylim(c(0,employ_max)))
+
    output$surface <- renderPlotly(
-        			(ggplot(df2) +
-        				geom_raster(aes(x=x,y=y,fill=z)) +
-        			  scale_fill_viridis_c()+
-					labs(title="Predictive surface",
-					     x="Receipts", y="Employment",
-					     fill="Mean Response")+
-					  geom_hline(color='red', linetype='dashed', aes(yintercept=input$employment))+
-					  geom_vline(color='red', linetype='dashed', aes(xintercept=input$receipts))+
-					  theme_classic()+
-					  xlim(c(0,receipt_max))+
-					  ylim(c(0,employ_max))) %>%
-					  ggplotly(tooltip = c("x","y","fill"))
+			  ggplotly(plotly.tmp, tooltip = c("text"))
     )
   })
 }
