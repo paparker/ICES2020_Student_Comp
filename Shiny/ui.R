@@ -43,9 +43,9 @@ fluidPage(
     mainPanel(
       plotlyOutput("surface"),
       fluidRow(
-         column(3,numericInput("receipts", "Establishment Receipts", 
+         column(3, offset=2, numericInput("receipts", "Establishment Receipts", 
          	     min=0, max=7200000, value=100)),
-         column(3, numericInput("employment", "Establishment employment", 
+         column(3, offset=1, numericInput("employment", "Establishment employment", 
          	     min=0, max=19000, value=10))),
       plotOutput("density"))
     )
