@@ -69,10 +69,29 @@ sboLong <- sboLong %>%
 
 sboLong <- mutate(sboLong, SEX=recode(SEX, M="Male", F="Female")) %>% 
         	mutate(ETH=recode(ETH, N="Non-Hispanic", H="Hispanic")) %>%
-        	mutate(RACE=recode(RACE, W="White", B="Black", 
+        	mutate(RACE=recode(RACE,
+        			   A="Asian", 
+        			   AP="Asian and Pacific Islander", 
+				   `A S`="Asian and Some other race",
+				   B="Black", 
+				   `B A`="Black and Asian",
+				   `BI`="Black and Amer. Indian",
+				   `B  P`="Black and Pacific Islander",
+				   `B   S`="Black and Some other race",
         			   I="Amer. Indian and Alaska Native",
-        			   A="Asian", P="Pacific Islander",
-        			   S="Some other race")) %>%
+				   `IA`="Amer. Indian",
+				   `I P`="Amer. Indian and Pacific Islander",
+				   `I  S`="Amer. Indian and Some other race",
+				   P="Pacific Islander",
+				   PS="Pacific Islander and Some other race",
+                                   S="Some other race",
+				   `W  A`="White and Asian",
+				   `W I`="White and Amer. Indian",
+				   `W   P`="White and Pacific Islander",
+				   `W    S`="White and Some other race",
+				   WB="White and Black",
+				   W="White")) %>%
+        			   
         	mutate(VET=recode(VET, "1"="Yes", "2"="No")) %>%
         	mutate(SECTOR=recode(SECTOR,
         		     "11"="Agriculture, Forestry, Fishing and Hunting",
