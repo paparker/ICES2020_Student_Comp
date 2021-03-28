@@ -7,22 +7,32 @@ sbo <- read_rds('Data/tidy_sbo.rds')
 
 
 sbo <- sbo %>% select(PRMINC, RECEIPTS_NOISY, EMPLOYMENT_NOISY, SEX,
-              ETH,RACE,VET,SECTOR,FRANCHISE,TABWGT) %>% 
+              RACE,ETH,VET,SECTOR,FRANCHISE,TABWGT) %>% 
   na.omit()
 
 sbo <- sbo %>% mutate(TABWGT=TABWGT*n()/sum(TABWGT)) %>%
   mutate(PRMINC=abs(PRMINC-2))
 
 sbo <- mutate(sbo, SEX=as.factor(SEX)) %>% 
-	mutate(ETH=as.factor(ETH)) %>%
-	mutate(RACE=as.factor(RACE)) %>%
 	mutate(VET=as.factor(VET)) %>%
 	mutate(SECTOR=as.factor(SECTOR)) %>%
 	mutate(FRANCHISE=as.factor(FRANCHISE)) 
 
+## Combine Race and Eth into one factor
+sbo <- sbo %>% 
+	mutate(RACE_ETH=paste(RACE," (",ETH,")",sep=""))
+
+sbo <- sbo %>%
+       	      group_by(RACE_ETH) %>% 
+	      add_count(name="count") %>%
+       	      mutate(RACE_ETH=factor(ifelse(count < 250, "Other", RACE_ETH))) %>%
+	      select(-RACE,-ETH)
+
+sbo$RACE_ETH<-as.factor(sbo$RACE_ETH)
+
 #PRMINC response with SEX, ETH, RACE, VET, SECTOR, FRANCHISE as covariates
 Xmat <- model.matrix(formula(~ (log(RECEIPTS_NOISY+1) + log(EMPLOYMENT_NOISY+1) + SEX +
-				ETH+RACE+VET+
+				RACE_ETH+VET+
 				SECTOR+FRANCHISE)-1), 
 		     data=sbo)
 

@@ -1,5 +1,6 @@
 library(shiny)
 library(ggplot2)
+library(tidyr)
 library(readr)
 library(dplyr)
 library(ggthemes)
@@ -19,7 +20,7 @@ receipt_min <- 0
 function(input, output) {
   vals <- reactiveValues()
   observe({
-    req(input$eth, input$franchise, input$race, input$sector,
+    req(input$franchise, input$race_eth, input$sector,
        	input$sex, input$vet, input$receipts, input$employment)
 
     employ_norm <- log(input$employment+1)
@@ -28,15 +29,14 @@ function(input, output) {
     vals$init <- list(RECEIPTS_NOISY = receipts_norm,
 			     EMPLOYMENT_NOISY = employ_norm,
 			     SEX = input$sex,
-			     ETH = input$eth,
-                             RACE = input$race,
+                             RACE_ETH = input$race_eth,
                              VET = input$vet,
                              SECTOR = input$sector,
 			     FRANCHISE = input$franchise
 			     )
 
     vals$predvec <- model.matrix(formula(~ (RECEIPTS_NOISY+EMPLOYMENT_NOISY+
-					   SEX+ETH+RACE+VET+SECTOR+FRANCHISE)-1),
+					   SEX+RACE_ETH+VET+SECTOR+FRANCHISE)-1),
                                       data=vals$init, xlev=mod$factor_levels)
 
     vals$Xpred <- plogis(cbind(1,vals$predvec)%*%mod$A)
@@ -56,14 +56,12 @@ function(input, output) {
 				     x="Probability")+
 				  scale_fill_manual(name="Prediction", labels=c("Current", "Previous"), 
 						    values=c("green","red"))+
-				  scale_alpha_manual(values=c(0.8, 0.1))+ #make previous pred lighter
+				  scale_alpha_manual(values=c(0.3, 0.1))+ #make previous pred lighter
 				  theme_classic()) #%>%
 				#  ggplotly(tooltip = c("x","fill"))
                       )
          df.prev <<- df1
     }else{
-	  print(head(df1))
-          print(paste("mean df1=", mean(df1$x)))
           output$density <- renderPlot(
 		         	(ggplot() +
 				  geom_density(df1, mapping=aes(x=x), fill='green', alpha=0.3) +
@@ -94,7 +92,7 @@ function(input, output) {
    df2 <- df2 %>% mutate(x=x)
    df2 <- df2 %>% mutate(y=y)
    plotly.tmp <- (ggplot(df2, mapping=aes(text=paste("Receipts: ", round(x, 3), "\n", 
-						     "Employment: ", round(y,3), "\n",
+						     "Employment: ", round(y, 3), "\n",
 						     "Mean response:", round(z,3)))) +
        		    geom_raster(mapping=aes(x=x,y=y,fill=z)) +
         	      scale_fill_viridis_c()+
@@ -110,5 +108,41 @@ function(input, output) {
    output$surface <- renderPlotly(
 			  ggplotly(plotly.tmp, tooltip = c("text"))
     )
+
+   
+    facet_var <- input$factor 
+    facet_levs <- mod$factor_levels[[facet_var]]
+    facet_n <- length(facet_levs)
+    facet_mat <-  do.call("rbind", replicate(facet_n, vals$init, simplify = FALSE))
+    facet_mat[,facet_var] <- facet_levs
+    facet.df <- as.data.frame(facet_mat)
+    facet.df <- cbind(facet.df[!sapply(facet.df, is.list)],
+                      (t(apply(facet.df[sapply(facet.df, is.list)], 1, unlist))))
+    facet.df$RECEIPTS_NOISY <- as.numeric(facet.df$RECEIPTS_NOISY)
+    facet.df$EMPLOYMENT_NOISY <- as.numeric(facet.df$EMPLOYMENT_NOISY)
+
+    facet_predvec <- model.matrix(formula(~ (RECEIPTS_NOISY+EMPLOYMENT_NOISY+
+                                           SEX+RACE_ETH+VET+SECTOR+FRANCHISE)-1),
+                                      data=facet.df, xlev=mod$factor_levels)
+
+    facet_Xpred <- plogis(cbind(1,facet_predvec)%*%mod$A)
+    facet_preds <- plogis(facet_Xpred%*%t(mod$beta))
+    rownames(facet_preds ) <- facet_levs
+    facet.df <- data.frame(names=rownames(facet_preds),facet_preds) %>%
+                    pivot_longer(cols=starts_with('X'), values_to='x') %>%
+                    select(-name)
+
+    output$facet_densities <- renderPlot( facet.df %>%
+#	                                    group_by(names) %>%
+	                                    ggplot() + 
+                                              geom_violin(
+	                                      mapping=aes(y=reorder(names,x), x=x),
+							    fill="#69b3a2",
+                                                                color="black",
+                                                                alpha=.75) +
+#                                              facet_wrap(~names) +
+					      theme_classic() +
+					      labs(y=NULL, x="Probability")
+				        )
   })
 }

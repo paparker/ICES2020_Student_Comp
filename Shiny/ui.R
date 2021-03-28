@@ -6,6 +6,14 @@ library(plotly)
 mod <- read_rds("../Data/elm.rds")
 levs <- mod$factor_levels
 
+employ_max <- 20
+employ_min <- 0
+
+receipt_max <- 400
+receipt_min <- 0
+
+features <- c("FRANCHISE","RACE_ETH","SECTOR","SEX","VET")
+
 inactivity <- "function idleTimer() {
   var t = setTimeout(logout, 60000);
   window.onmousemove = resetTimer; // catches mouse movements
@@ -34,19 +42,30 @@ fluidPage(
     #Below that, user selects a value for the two numeric variables
     #second plot shows posterior predictive distribution for all inputs
     sidebarPanel(tags$h2("Features"),
-                selectInput("eth", "Ethnicity", levs$ETH),
                 selectInput("franchise", "Franchise", levs$FRANCHISE),
-                selectInput("race", "Race", levs$RACE),
+                selectInput("race_eth", "Race", levs$RACE_ETH),
                 selectInput("sector", "Sector", levs$SECTOR),
                 selectInput("sex", "Sex", levs$SEX),
                 selectInput("vet", "Veteran status",levs$VET)),
     mainPanel(
-      plotlyOutput("surface"),
-      fluidRow(
-         column(3, offset=2, numericInput("receipts", "Establishment Receipts", 
-         	     min=0, max=7200000, value=100)),
-         column(3, offset=1, numericInput("employment", "Establishment employment", 
-         	     min=0, max=19000, value=10))),
-      plotOutput("density"))
-    )
+	        tabsetPanel(
+			    tabPanel("Mean predictive surface",
+                                    fluidRow(
+                                    plotlyOutput("surface"),
+                                       column(3, offset=2, numericInput("receipts", "Establishment Receipts", 
+                                       	     min=0, max=receipt_max, value=100)),
+                                       column(3, offset=1, numericInput("employment", "Establishment employment", 
+                                       	     min=0, max=employ_max, value=10)))),
+			    tabPanel("Posterior predictive...",
+				    br(),
+                                    plotOutput("density")
+			            ),
+			    tabPanel("All factor levels",
+				    br(),
+				    selectInput("factor", "Variable to facet", features),
+			           plotOutput("facet_densities")
+			    )
+		           )
+             )
+       )
   )
