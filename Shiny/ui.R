@@ -39,14 +39,14 @@ fluidPage(
                 selectInput("race", "Race", levs$RACE),
                 selectInput("sector", "Sector", levs$SECTOR),
                 selectInput("sex", "Sex", levs$SEX),
-                selectInput("vet", "Veteran status",levs$VET),
-                numericInput("receipts", "Establishment Receipts", 
-			     min=0, max=7200000, value=100),
-                numericInput("employment", "Establishment employment", 
-			     min=0, max=19000, value=10)),
+                selectInput("vet", "Veteran status",levs$VET)),
     mainPanel(
       plotlyOutput("surface"),
-      plotOutput("density")
+      fluidRow(
+         column(3,numericInput("receipts", "Establishment Receipts", 
+         	     min=0, max=7200000, value=100)),
+         column(3, numericInput("employment", "Establishment employment", 
+         	     min=0, max=19000, value=10))),
+      plotOutput("density"))
     )
   )
-)
