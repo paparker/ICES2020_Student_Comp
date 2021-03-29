@@ -52,9 +52,9 @@ fluidPage(
 			    tabPanel("Mean predictive surface",
                                     fluidRow(
                                     plotlyOutput("surface"),
-                                       column(3, offset=2, numericInput("receipts", "Establishment Receipts", 
+                                       column(3, offset=2, sliderInput("receipts", "Establishment Receipts", 
                                        	     min=0, max=receipt_max, value=100)),
-                                       column(3, offset=1, numericInput("employment", "Establishment employment", 
+                                       column(3, offset=1, sliderInput("employment", "Establishment employment", 
                                        	     min=0, max=employ_max, value=10)))),
 			    tabPanel("Posterior predictive...",
 				    br(),
