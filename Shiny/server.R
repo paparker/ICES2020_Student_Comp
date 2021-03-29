@@ -91,8 +91,8 @@ function(input, output) {
    #rescale back to original units
    df2 <- df2 %>% mutate(x=x)
    df2 <- df2 %>% mutate(y=y)
-   plotly.tmp <- (ggplot(df2, mapping=aes(text=paste("Receipts: ", round(x, 3), "\n", 
-						     "Employment: ", round(y, 3), "\n",
+   plotly.tmp <- (ggplot(df2, mapping=aes(text=paste("Receipts:", round(x, 3), "\n", 
+						     "Employment:", round(y, 3), "\n",
 						     "Mean response:", round(z,3)))) +
        		    geom_raster(mapping=aes(x=x,y=y,fill=z)) +
         	      scale_fill_viridis_c()+
@@ -118,8 +118,8 @@ function(input, output) {
     facet.df <- as.data.frame(facet_mat)
     facet.df <- cbind(facet.df[!sapply(facet.df, is.list)],
                       (t(apply(facet.df[sapply(facet.df, is.list)], 1, unlist))))
-    facet.df$RECEIPTS_NOISY <- as.numeric(facet.df$RECEIPTS_NOISY)
-    facet.df$EMPLOYMENT_NOISY <- as.numeric(facet.df$EMPLOYMENT_NOISY)
+    facet.df$RECEIPTS_NOISY <- receipts_norm
+    facet.df$EMPLOYMENT_NOISY <- employ_norm
 
     facet_predvec <- model.matrix(formula(~ (RECEIPTS_NOISY+EMPLOYMENT_NOISY+
                                            SEX+RACE_ETH+VET+SECTOR+FRANCHISE)-1),
@@ -140,7 +140,6 @@ function(input, output) {
 							    fill="#69b3a2",
                                                                 color="black",
                                                                 alpha=.75) +
-#                                              facet_wrap(~names) +
 					      theme_classic() +
 					      labs(y=NULL, x="Probability")
 				        )
