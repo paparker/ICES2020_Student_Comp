@@ -107,7 +107,7 @@ sboLong <- mutate(sboLong, SEX=recode(SEX, M="Male", F="Female")) %>%
         		     "53"= "Real Estate and Rental and Leasing",
         		     "54"= "Professional, Scientific, and Technical Services",
         		     "55"= "Management of Companies and Enterprises",
-        		     "56"= "Administrative and Support and Waste Management and Remediation Services",
+        		     "56"= "Administrative and Support and Waste Mgmt and Remediation Services",
         		     "61"= "Educational Services",
         		     "62"= "Health Care and Social Assistance",
         		     "71"= "Arts, Entertainment, and Recreation",
