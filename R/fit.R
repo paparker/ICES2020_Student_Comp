@@ -57,4 +57,18 @@ preds <- plogis(Xpred%*%t(beta)) ### Need to save A and beta for prediction in s
 write_rds(list(A=A, beta=beta, factor_levels=factor_levels), path = "Data/elm.rds")
 
 
+wll1 <- sum(-sbo$TABWGT*(sbo$PRMINC*log(rowMeans(preds)) + (1-sbo$PRMINC)*(1-rowMeans(preds))))
+
+## Compare to linear model
+
+mod2 <- pgVB(X=Xmat, Y=sbo$PRMINC, eps=0.1, wgt=sbo$TABWGT) ## fit model using VB
+
+beta2 <- rmvnorm(1000, mean=mod2$BU$mean, sigma=as.matrix(mod2$BU$Cov)) ## posterior samples
+
+### Get predictions
+
+preds2 <- plogis(Xmat%*%t(beta2)) ### Need to save A and beta for prediction in shiny app
+
+wll2 <- sum(-sbo$TABWGT*(sbo$PRMINC*log(rowMeans(preds2)) + (1-sbo$PRMINC)*(1-rowMeans(preds2))))
+
   
