@@ -33,7 +33,7 @@ idleTimer();"
 
 fluidPage(
   tags$script(inactivity),
-  tags$h1("ICES VI: Visualizing Nonlinear Modeling with the Survey of Business Owners"),
+  tags$h1("ICES VI: Visualizing Nonlinear Modeling with the Survey of Business Owners", align='center'),
   sidebarLayout(
     sidebarPanel(tags$h3("Categorical variables"),
                 selectInput("franchise", "Franchise", levs$FRANCHISE),
