@@ -27,7 +27,7 @@ inactivity <- "function idleTimer() {
 
   function resetTimer() {
     clearTimeout(t);
-    t = setTimeout(logout, 6000000);  // time is in milliseconds (1000 is 1 second)
+    t = setTimeout(logout, 60000);  // time is in milliseconds (1000 is 1 second)
   }
 }
 idleTimer();"
