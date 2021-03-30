@@ -9,7 +9,6 @@ library(plotly)
 mod <- read_rds("../Data/elm.rds")
 levs <- mod$factor_levels
 
-
 employ_max <- 20
 employ_min <- 0
 
@@ -34,9 +33,11 @@ function(input, output) {
 			     FRANCHISE = input$franchise
 			     )
 
-    vals$predvec <- model.matrix(formula(~ (RECEIPTS_NOISY+EMPLOYMENT_NOISY+
-					   SEX+RACE_ETH+VET+SECTOR+FRANCHISE)-1),
-                                      data=vals$init, xlev=mod$factor_levels)
+    vals$predvec <- model.matrix(formula(~ (RECEIPTS_NOISY+
+					    EMPLOYMENT_NOISY+SEX+RACE_ETH+
+					    VET+SECTOR+FRANCHISE)-1),
+                                      data=vals$init, 
+				      xlev=mod$factor_levels)
 
     vals$Xpred <- plogis(cbind(1,vals$predvec)%*%mod$A)
     vals$preds <- plogis(vals$Xpred%*%t(mod$beta))
@@ -53,8 +54,11 @@ function(input, output) {
 					   aes(xintercept=mean(vals$preds))) +
 				  labs(title="Posterior Probability of Primary Income Source",
 				     x="Probability", y=NULL)+
-				  guides(alpha=FALSE, fill=guide_legend(override.aes=list(alpha=c(0.3,0.05)))) +
-				  scale_fill_manual(name="Prediction", labels=c("Current", "Previous"), 
+				  guides(alpha=FALSE, 
+					 fill=guide_legend(override.aes=list(alpha=c(0.3,0.05)))
+					 ) +
+				  scale_fill_manual(name="Prediction", 
+						    labels=c("Current", "Previous"), 
 						    values=c("green","red"))+
 				  scale_alpha_manual(values=c(0.3, 0.05))+ #make previous pred lighter
 				  theme_classic()) 
@@ -69,9 +73,12 @@ function(input, output) {
 					   aes(xintercept=mean(vals$preds))) +
 				  labs(title="Posterior Probability of Primary Income Source",
 				     x="Probability", y=NULL)+
-				  scale_fill_manual(name="Prediction", labels=c("Current", "Previous"), 
+				  scale_fill_manual(name="Prediction", 
+						    labels=c("Current", "Previous"), 
 						    values=c("green","red"))+
-				  guides(alpha=FALSE, fill=guide_legend(override.aes=list(alpha=c(0.3,0.05)))) +
+				  guides(alpha=FALSE,
+					 fill=guide_legend(override.aes=list(alpha=c(0.3,0.05)))
+					 ) +
 				  theme_classic())
                       )
     }
@@ -116,7 +123,9 @@ function(input, output) {
     facet_var <- input$factor 
     facet_levs <- mod$factor_levels[[facet_var]]
     facet_n <- length(facet_levs)
-    facet_mat <-  do.call("rbind", replicate(facet_n, vals$init, simplify = FALSE))
+    facet_mat <-  do.call("rbind", 
+			  replicate(facet_n, vals$init, 
+				    simplify = FALSE))
     facet_mat[,facet_var] <- facet_levs
     facet.df <- as.data.frame(facet_mat)
     facet.df <- cbind(facet.df[!sapply(facet.df, is.list)],
@@ -124,9 +133,11 @@ function(input, output) {
     facet.df$RECEIPTS_NOISY <- receipts_norm
     facet.df$EMPLOYMENT_NOISY <- employ_norm
 
-    facet_predvec <- model.matrix(formula(~ (RECEIPTS_NOISY+EMPLOYMENT_NOISY+
-                                           SEX+RACE_ETH+VET+SECTOR+FRANCHISE)-1),
-                                      data=facet.df, xlev=mod$factor_levels)
+    facet_predvec <- model.matrix(formula(~ (RECEIPTS_NOISY+
+					     EMPLOYMENT_NOISY+SEX+RACE_ETH+
+					     VET+SECTOR+FRANCHISE)-1),
+                                      data=facet.df, 
+				      xlev=mod$factor_levels)
 
     facet_Xpred <- plogis(cbind(1,facet_predvec)%*%mod$A)
     facet_preds <- plogis(facet_Xpred%*%t(mod$beta))
@@ -135,16 +146,15 @@ function(input, output) {
                     pivot_longer(cols=starts_with('X'), values_to='x') %>%
                     select(-name)
 
-    output$facet_densities <- renderPlot( facet.df %>%
-#	                                    group_by(names) %>%
-	                                    ggplot() + 
-                                              geom_violin(
-	                                      mapping=aes(y=reorder(names,x), x=x),
-							    fill="#69b3a2",
-                                                                color="black",
-                                                                alpha=.75) +
-					      labs(y=NULL, x="Probability")+
-					      theme_classic() 
-				        )
+    output$facet_densities <- renderPlot(facet.df %>%
+					   ggplot() + 
+					     geom_violin(mapping=aes(y=reorder(names,x),
+								 x=x),
+								fill="#69b3a2",
+								color="black",
+								alpha=.75) +
+								labs(y=NULL, x="Probability") +
+								theme_classic() 
+				         )
   })
 }
