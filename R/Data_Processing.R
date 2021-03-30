@@ -5,7 +5,6 @@ library(tidyr)
 ## Read in data
 sbo <- read_csv('Data/icesiv_contest.csv')
 
-
 ## Pivot the columns that are split by owner
 pct <- sbo %>% 
   select(1:11) %>%
@@ -70,15 +69,15 @@ sboLong <- sboLong %>%
 sboLong <- mutate(sboLong, SEX=recode(SEX, M="Male", F="Female")) %>% 
         	mutate(ETH=recode(ETH, N="Non-Hispanic", H="Hispanic")) %>%
         	mutate(RACE=recode(RACE,
-        			   A="Asian", 
-        			   AP="Asian and Pacific Islander", 
+				    A="Asian", 
+				    AP="Asian and Pacific Islander", 
 				   `A S`="Asian and Some other race",
-				   B="Black", 
+				    B="Black", 
 				   `B A`="Black and Asian",
 				   `BI`="Black and Amer. Indian",
 				   `B  P`="Black and Pacific Islander",
 				   `B   S`="Black and Some other race",
-        			   I="Amer. Indian and Alaska Native",
+				    I="Amer. Indian and Alaska Native",
 				   `IA`="Amer. Indian",
 				   `I P`="Amer. Indian and Pacific Islander",
 				   `I  S`="Amer. Indian and Some other race",
