@@ -34,7 +34,7 @@ idleTimer();"
 
 fluidPage(
   tags$script(inactivity),
-  tags$h1("ELM Predictions"),
+  tags$h1("ICES VI: Visualizing Nonlinear Modeling with the Survey of Business Owners"),
   sidebarLayout(
     sidebarPanel(tags$h3("Categorical variables"),
                 selectInput("franchise", "Franchise", levs$FRANCHISE),
