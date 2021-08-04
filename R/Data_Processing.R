@@ -66,7 +66,8 @@ sboLong <- pct %>%
 
 ## Remove rows without primary income data
 sboLong <- sboLong %>% 
-  filter(!is.na(PRMINC))
+  filter(!is.na(PRMINC)) %>%
+  filter(PRMINC>0)
 
 sboLong <- drop_na(sboLong)
 

@@ -51,16 +51,28 @@ beta <- rmvnorm(1000, mean=mod$BU$mean, sigma=as.matrix(mod$BU$Cov)) ## posterio
 
 ### Get predictions
 Xpred <- plogis(cbind(1,Xmat)%*%A)
-preds <- plogis(Xpred%*%t(beta)) ### Need to save A and beta for prediction in shiny app
+#preds <- plogis(Xpred%*%t(beta)) ### Need to save A and beta for prediction in shiny app
+preds <- rep(NA, nrow(Xpred))
+pb <- txtProgressBar(min = 0, max = nrow(Xpred), style = 3)
+for(i in 1:nrow(Xpred)){
+  preds[i] <- mean(Xpred[1,]%*%t(beta))
+  setTxtProgressBar(pb, i)
+}
 
 write_rds(list(A=A, beta=beta, factor_levels=factor_levels), path = "Data/elm.rds")
 
-wll1 <- sum(-sbo$TABWGT*(sbo$PRMINC*log(rowMeans(preds)) + (1-sbo$PRMINC)*(1-rowMeans(preds))))
+wll1 <- sum(-sbo$TABWGT*(sbo$PRMINC*log((preds)) + (1-sbo$PRMINC)*(1-(preds))))
 
 ## Compare to linear model
 mod2 <- pgVB(X=Xmat, Y=sbo$PRMINC, eps=0.1, wgt=sbo$TABWGT) ## fit model using VB
 beta2 <- rmvnorm(1000, mean=mod2$BU$mean, sigma=as.matrix(mod2$BU$Cov)) ## posterior samples
 
 ### Get predictions
-preds2 <- plogis(Xmat%*%t(beta2)) ### Need to save A and beta for prediction in shiny app
-wll2 <- sum(-sbo$TABWGT*(sbo$PRMINC*log(rowMeans(preds2)) + (1-sbo$PRMINC)*(1-rowMeans(preds2))))
+#preds2 <- plogis(Xmat%*%t(beta2)) ### Need to save A and beta for prediction in shiny app
+preds2 <- rep(NA, nrow(Xmat))
+pb <- txtProgressBar(min = 0, max = nrow(Xmat), style = 3)
+for(i in 1:nrow(Xmat)){
+  preds2[i] <- mean(Xmat[1,]%*%t(beta2))
+  setTxtProgressBar(pb, i)
+}
+wll2 <- sum(-sbo$TABWGT*(sbo$PRMINC*log((preds2)) + (1-sbo$PRMINC)*(1-(preds2))))
