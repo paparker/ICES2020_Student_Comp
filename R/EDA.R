@@ -40,13 +40,15 @@ ggplot(heatDF)+
   theme_classic()+
   scale_x_discrete(label=abbreviate)+
   theme(axis.text.x = element_text(size = 12, angle = 90))
-ggsave('Plots/heatmap.png')
+ggsave('heatmap.png', dpi=600)
 
-hexDF <- sbo %>% filter(RECEIPTS_NOISY < quantile(RECEIPTS_NOISY, 0.75) 
-                        & EMPLOYMENT_NOISY < quantile(EMPLOYMENT_NOISY, 0.75)) %>%
-  mutate(REC=round(7*RECEIPTS_NOISY/max(RECEIPTS_NOISY))/7*max(RECEIPTS_NOISY),
-         EMP=round(7*EMPLOYMENT_NOISY/max(EMPLOYMENT_NOISY))/7*max(EMPLOYMENT_NOISY)) %>%
-  group_by(REC,EMP) %>% summarize(Est=sum(PRMINC*TABWGT)/sum(TABWGT), Count=n())
+
+
+hexDF <- sbo %>% dplyr::filter(RECEIPTS_NOISY < quantile(RECEIPTS_NOISY, 0.75) 
+                               & EMPLOYMENT_NOISY < 13) %>%
+  mutate(REC=round(7*RECEIPTS_NOISY/max(RECEIPTS_NOISY))/7*(quantile(sbo$RECEIPTS_NOISY, 0.75)),
+         EMP=round(7*EMPLOYMENT_NOISY/max(EMPLOYMENT_NOISY))/7*13) %>%
+  dplyr::group_by(REC,EMP) %>% dplyr::summarize(Est=sum(PRMINC*TABWGT)/sum(TABWGT), Count=n())
   
 ggplot(hexDF)+
   geom_tile(aes(x=REC, y=EMP, fill=Est))+
@@ -54,5 +56,5 @@ ggplot(hexDF)+
   theme_classic()+
   xlab("RECEIPTS")+
   ylab("EMPLOYMENT")
-ggsave('Plots/heatmap2.png')
+ggsave('heatmap2.png', dpi=600)
 

@@ -3,7 +3,9 @@ library(dplyr)
 library(tidyr)
 
 ## Read in data
-sbo <- read_csv('Data/icesiv_contest.csv')
+sc <- read_csv('Data/icesiv_contest.csv')
+sbo <- read_csv('Data/pums.csv')
+sbo <- sbo[,names(sc)]
 
 ## Pivot the columns that are split by owner
 pct <- sbo %>% 
@@ -66,6 +68,8 @@ sboLong <- pct %>%
 sboLong <- sboLong %>% 
   filter(!is.na(PRMINC))
 
+sboLong <- drop_na(sboLong)
+
 sboLong <- mutate(sboLong, SEX=recode(SEX, M="Male", F="Female")) %>% 
         	mutate(ETH=recode(ETH, N="Non-Hispanic", H="Hispanic")) %>%
         	mutate(RACE=recode(RACE,
@@ -116,4 +120,4 @@ sboLong <- mutate(sboLong, SEX=recode(SEX, M="Male", F="Female")) %>%
         	mutate(FRANCHISE=recode(FRANCHISE, "1"="Yes", "2"="No"))
 
 ## Save data
-write_rds(sboLong, 'Data/tidy_sbo.rds')
+write_csv(sboLong, 'Data/tidy_sbo.csv')
