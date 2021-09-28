@@ -7,6 +7,30 @@ library(ggthemes)
 library(plotly)
 
 mod <- read_rds("../Data/elm.rds")
+mod$factor_levels$RACE_ETH <- dplyr::recode(mod$factor_levels$RACE_ETH,
+"Amer. Indian (Non-Hispanic)"                      = "Amer. Indian",
+"Amer. Indian and Alaska Native (Non-Hispanic)"    = "Amer. Indian and Alaska Native",
+"Amer. Indian and Pacific Islander (Non-Hispanic)" = "Amer. Indian and Pacific Islander",
+"Amer. Indian and Some other race (Non-Hispanic)"  = "Amer. Indian and Some other race",
+"Asian (Non-Hispanic)"                      = "Asian",
+"Asian and Pacific Islander (Non-Hispanic)" = "Asian and Pacific Islander",
+"Asian and Some other race (Non-Hispanic)"  = "Asian and Some other race",
+"Black (Non-Hispanic)"                      = "Black",
+"Black and Amer. Indian (Non-Hispanic)"     = "Black and Amer. Indian",
+"Black and Asian (Non-Hispanic)"            = "Black and Asian",
+"Black and Pacific Islander (Non-Hispanic)" = "Black and Pacific Islander",
+"Black and Some other race (Non-Hispanic)"  = "Black and Some other race",
+"Non-white (Hispanic)"                      = "Non-white (Hispanic)",
+"Pacific Islander (Non-Hispanic)"           = "Pacific Islander",
+"Pacific Islander and Some other race (Non-Hispanic)" = "Pacific Islander and Some other race",
+"Some other race (Non-Hispanic)"         = "Some other race",
+"White (Hispanic)"                       = "White (Hispanic)",
+"White (Non-Hispanic)"                   = "White (Non-Hispanic)",
+"White and Amer. Indian (Non-Hispanic)"  = "White and Amer. Indian",
+"White and Asian (Non-Hispanic)"         = "White and Asian",
+"White and Black (Non-Hispanic)"         = "White and Black",
+"White and Pacific Islander (Non-Hispanic)" = "White and Pacific Islander",
+"White and Some other race (Non-Hispanic)"  = "White and Some other race")
 levs <- mod$factor_levels
 
 employ_max <- 20
@@ -20,6 +44,10 @@ function(input, output) {
   observe({
     req(input$franchise, input$race_eth, input$sector,
        	input$sex, input$vet, input$receipts, input$employment)
+
+    current_state <- c(franchise=input$franchise, race=input$race_eth, sector=input$sector,
+                       sex=input$sex, veteran=input$vet, receipts=input$receipts, 
+		       employees=input$employment)
 
     employ_norm <- log(input$employment+1)
     receipts_norm <- log(input$receipts+1)
@@ -43,8 +71,12 @@ function(input, output) {
     vals$preds <- plogis(vals$Xpred%*%t(mod$beta))
 
     df1 <- data.frame(t(vals$preds))
+#    df.prev <- data.frame(t(vals$preds))
     colnames(df1)<-"x"
-    if(exists("df.prev") & input$display.prev){
+    if(exists("df.prev") & exists("old_state") & input$display.prev){
+          prev_label <- unlist(setdiff(old_state,current_state))
+          curr_label <- unlist(setdiff(current_state,old_state))
+	  label_cat <- names(which(old_state==prev_label))
 	  joint.df <- rbind(cbind(df1,id=1), cbind(df.prev,id=2))
 	  joint.df$id <- as.factor(joint.df$id)
           output$density <- renderPlot(
@@ -57,15 +89,17 @@ function(input, output) {
 				  guides(alpha=FALSE, 
 					 fill=guide_legend(override.aes=list(alpha=c(0.3,0.05)))
 					 ) +
-				  scale_fill_manual(name="Prediction", 
-						    labels=c("Current", "Previous"), 
+				  scale_fill_manual(name=paste("Comparison across", label_cat),
+						    labels=c(curr_label, prev_label),
 						    values=c("green","red"))+
 				  scale_alpha_manual(values=c(0.3, 0.05))+ #make previous pred lighter
 				  theme_classic()) 
                       )
          df.prev <<- df1
+         old_state <<- current_state
     }else{
          df.prev <<- df1
+         old_state <<- current_state
          output$density <- renderPlot(
 		         	(ggplot() +
 				  geom_density(df1, mapping=aes(x=x), fill='green', alpha=0.3) +
@@ -146,6 +180,7 @@ function(input, output) {
                     pivot_longer(cols=starts_with('X'), values_to='x') %>%
                     select(-name)
 
+    #browser()
     output$facet_densities <- renderPlot(facet.df %>%
 					   ggplot() + 
 					     geom_violin(mapping=aes(y=reorder(names,x),

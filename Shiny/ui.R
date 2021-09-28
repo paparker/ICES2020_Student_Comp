@@ -4,6 +4,31 @@ library(readr)
 library(plotly)
 
 mod <- read_rds("../Data/elm.rds")
+mod$factor_levels$RACE_ETH <- dplyr::recode(mod$factor_levels$RACE_ETH,
+"Amer. Indian (Non-Hispanic)"                      = "Amer. Indian",
+"Amer. Indian and Alaska Native (Non-Hispanic)"    = "Amer. Indian and Alaska Native",
+"Amer. Indian and Pacific Islander (Non-Hispanic)" = "Amer. Indian and Pacific Islander",
+"Amer. Indian and Some other race (Non-Hispanic)"  = "Amer. Indian and Some other race",
+"Asian (Non-Hispanic)"                      = "Asian",
+"Asian and Pacific Islander (Non-Hispanic)" = "Asian and Pacific Islander",
+"Asian and Some other race (Non-Hispanic)"  = "Asian and Some other race",
+"Black (Non-Hispanic)"                      = "Black",
+"Black and Amer. Indian (Non-Hispanic)"     = "Black and Amer. Indian",
+"Black and Asian (Non-Hispanic)"            = "Black and Asian",
+"Black and Pacific Islander (Non-Hispanic)" = "Black and Pacific Islander",
+"Black and Some other race (Non-Hispanic)"  = "Black and Some other race",
+"Non-white (Hispanic)"                      = "Non-white (Hispanic)",
+"Pacific Islander (Non-Hispanic)"           = "Pacific Islander",
+"Pacific Islander and Some other race (Non-Hispanic)" = "Pacific Islander and Some other race",
+"Some other race (Non-Hispanic)"         = "Some other race",
+"White (Hispanic)"                       = "White (Hispanic)",
+"White (Non-Hispanic)"                   = "White (Non-Hispanic)",
+"White and Amer. Indian (Non-Hispanic)"  = "White and Amer. Indian",
+"White and Asian (Non-Hispanic)"         = "White and Asian",
+"White and Black (Non-Hispanic)"         = "White and Black",
+"White and Pacific Islander (Non-Hispanic)" = "White and Pacific Islander",
+"White and Some other race (Non-Hispanic)"  = "White and Some other race")
+
 levs <- mod$factor_levels
 
 employ_max <- 20
@@ -26,14 +51,14 @@ inactivity <- "function idleTimer() {
 
   function resetTimer() {
     clearTimeout(t);
-    t = setTimeout(logout, 60000);  // time is in milliseconds (1000 is 1 second)
+    t = setTimeout(logout, 60000000);  // time is in milliseconds (1000 is 1 second)
   }
 }
 idleTimer();"
 
 fluidPage(
   tags$script(inactivity),
-  tags$h1("ICES VI: Visualizing Nonlinear Modeling with the Survey of Business Owners", align='center'),
+  tags$h1("Interactive Visualization of Nonlinear Survey Models", align='center'),
   sidebarLayout(
     sidebarPanel(tags$h3("Categorical variables"),
                 selectInput("franchise", "Franchise", levs$FRANCHISE),

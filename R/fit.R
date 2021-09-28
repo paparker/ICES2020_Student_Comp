@@ -3,7 +3,7 @@ library(dplyr)
 library(tidyr)
 source('R/funcs.R')
 
-sbo <- read_rds('Data/tidy_sbo.rds')
+sbo <- read_csv('Data/tidy_sbo.csv')
 
 sbo <- sbo %>% select(PRMINC, RECEIPTS_NOISY, EMPLOYMENT_NOISY, SEX,
               RACE,ETH,VET,SECTOR,FRANCHISE,TABWGT) %>% 
@@ -21,11 +21,20 @@ sbo <- mutate(sbo, SEX=as.factor(SEX)) %>%
 sbo <- sbo %>% 
 	mutate(RACE_ETH=paste(RACE," (",ETH,")",sep=""))
 
-sbo <- sbo %>%
-       	      group_by(RACE_ETH) %>% 
-	      add_count(name="count") %>%
-       	      mutate(RACE_ETH=factor(ifelse(count < 250, "Other", RACE_ETH))) %>%
-	      select(-RACE,-ETH)
+#group by 1) Non-hispanic race, 2) White hispanic, 3), Non-white hispanic
+sbo <- sbo %>% 
+	  mutate(RACE_ETH=factor(
+				 ifelse(RACE!="White" & ETH=="Hispanic",
+				        yes="Non-white (Hispanic)",
+				        no=RACE_ETH)
+	                        )) 
+
+	#Potential grouping, by count
+#sbo <- sbo %>%
+#       	      group_by(RACE_ETH) %>% 
+#	      add_count(name="count") %>%
+#       	      mutate(RACE_ETH=factor(ifelse(count < 250, "Other", RACE_ETH))) %>%
+#	      select(-RACE,-ETH)
 
 sbo$RACE_ETH<-as.factor(sbo$RACE_ETH)
 
